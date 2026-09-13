@@ -15,31 +15,66 @@ class SkillManager:
         self.skills = self.load_all_skills()
     
     def load_all_skills(self) -> Dict[str, Dict]:
-        """Load all skills from the skills directory"""
+        """Load all skills from the skills directory.
+
+        Supports two layouts:
+        - Flat:  skills/<name>.md
+        - Folder: skills/<name>/skill.md  (with optional examples/ subfolder)
+        """
         skills = {}
-        
+
         if not self.skills_dir.exists():
             print(f"Warning: Skills directory '{self.skills_dir}' not found")
             return skills
-        
+
+        # --- flat .md files at the top level ---
         for md_file in self.skills_dir.glob("*.md"):
             try:
                 with open(md_file, 'r', encoding='utf-8') as f:
                     content = f.read()
-                    
-                # Parse frontmatter
                 metadata = self.parse_frontmatter(content)
-                
                 skills[md_file.stem] = {
                     'name': metadata.get('name', md_file.stem),
                     'description': metadata.get('description', ''),
                     'content': content,
-                    'path': str(md_file)
+                    'path': str(md_file),
+                    'examples': []
                 }
-                
             except Exception as e:
                 print(f"Error loading skill {md_file}: {e}")
-        
+
+        # --- subdirectory-based skills (e.g. resume-portofolio/skill.md) ---
+        for skill_dir in self.skills_dir.iterdir():
+            if not skill_dir.is_dir():
+                continue
+            skill_file = skill_dir / 'skill.md'
+            if not skill_file.exists():
+                continue
+            try:
+                with open(skill_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                metadata = self.parse_frontmatter(content)
+
+                # Load every .md file inside examples/ if the folder exists
+                examples = []
+                examples_dir = skill_dir / 'examples'
+                if examples_dir.exists():
+                    for ex_file in sorted(examples_dir.glob('*.md')):
+                        with open(ex_file, 'r', encoding='utf-8') as f:
+                            examples.append({
+                                'filename': ex_file.name,
+                                'content': f.read()
+                            })
+                skills[skill_dir.name] = {
+                    'name': metadata.get('name', skill_dir.name),
+                    'description': metadata.get('description', ''),
+                    'content': content,
+                    'path': str(skill_file),
+                    'examples': examples
+                }
+            except Exception as e:
+                print(f"Error loading skill {skill_dir}: {e}")
+
         return skills
     
     def parse_frontmatter(self, content: str) -> Dict[str, str]:
@@ -371,23 +406,80 @@ Respond with ONLY the folder name, nothing else:"""
             if skill:
                 loaded_skills.append(skill['name'])
                 skill_context += f"\n\n=== SKILL: {skill['name']} ===\n{skill['content']}\n"
+                # Append examples as format/style rules only — never as content to copy
+                if skill.get('examples'):
+                    skill_context += "\n--- EXAMPLES (format & style reference only — DO NOT copy any names, companies, or content) ---\n"
+                    for ex in skill['examples']:
+                        # Strip the actual data lines, keep only the structural/commentary lines
+                        lines = ex['content'].splitlines()
+                        guide_lines = [
+                            l for l in lines
+                            if l.strip().startswith('#')        # headings
+                            or l.strip().startswith('>')        # blockquotes
+                            or 'why' in l.lower()               # explanation lines
+                            or 'unsafe' in l.lower()            # rule lines
+                            or 'safe' in l.lower()
+                            or 'avoid' in l.lower()
+                            or 'strong' in l.lower()
+                            or 'weak' in l.lower()
+                            or l.strip() == ''                  # blank lines for spacing
+                        ]
+                        skill_context += f"\n[{ex['filename']}]\n" + "\n".join(guide_lines) + "\n"
         
         if loaded_skills:
             print(f"📚 Loaded skills: {', '.join(loaded_skills)}")
         
-        # Build execution-focused prompt
+        # Detect resume/portfolio intent to force HTML output
+        resume_keywords = ['resume', 'cv', 'portfolio', 'cover letter']
+        is_resume = any(kw in user_prompt.lower() for kw in resume_keywords)
+
+        # For resume/portfolio, also inject frontend-design skill for visual output
+        if is_resume and 'frontend-design' not in loaded_skills:
+            frontend_skill = self.skill_manager.get_skill_by_name('frontend-design')
+            if frontend_skill:
+                loaded_skills.append(frontend_skill['name'])
+                skill_context += f"\n\n=== SKILL: {frontend_skill['name']} ===\n{frontend_skill['content']}\n"
+                print(f"📚 Also loaded: {frontend_skill['name']} (for visual design)")
+
+        if is_resume:
+            output_instructions = """
+IMPORTANT — READ FIRST:
+- The skills and examples provided above are REFERENCE MATERIAL ONLY — for structure, formatting rules, and writing style.
+- Do NOT copy any names, companies, projects, or content from the examples.
+- Generate 100% original content based ONLY on what the user asked for.
+- If the user asked for a "backend developer" resume, every detail must reflect a backend developer — not fullstack, not frontend.
+
+STEP 1 — PLAN (using resume-portfolio skill as reference):
+- Read the user's request carefully: what type of developer, what stack, what seniority level?
+- Plan original content for: header, summary, experience, skills, projects, education
+- Write ATS-safe bullets: action verb + specific technology + quantified result
+- Use realistic but fictional names, companies, and projects that match the requested role
+
+STEP 2 — DESIGN (using frontend-design skill as reference):
+- Choose a distinct visual identity that fits this specific developer type
+- Define: color palette (4-6 hex values), 1-2 typefaces, layout direction
+- Avoid defaults: no warm cream (#F4F1EA) + terracotta (#D97757), no ALL-CAPS labels, no generic card layouts
+
+STEP 3 — IMPLEMENT:
+- Combine plan and design into one complete HTML file
+- Embed all CSS in a <style> tag in <head>
+- Output ONLY a single ```html code block — no markdown, no plain text outside it
+- Fill every field with realistic original content matching the user's request"""
+        else:
+            output_instructions = """
+1. Analyze the request and create a design/implementation plan.
+2. Generate complete, working code with proper file structure.
+3. Include HTML, CSS, and JavaScript if it's a web project.
+4. Include Python code if it's a backend/script project.
+5. Use proper code blocks with language tags (```html, ```css, ```javascript, ```python).
+6. Make the code production-ready and fully functional."""
+
         execution_prompt = f"""{skill_context}
 
 === USER REQUEST ===
 {user_prompt}
 
-=== INSTRUCTIONS ===
-1. Analyze the request and create a design/implementation plan
-2. Generate complete, working code with proper file structure
-3. Include HTML, CSS, and JavaScript if it's a web project
-4. Include Python code if it's a backend/script project
-5. Use proper code blocks with language tags (```html, ```css, ```javascript, ```python)
-6. Make the code production-ready and fully functional
+=== INSTRUCTIONS ==={output_instructions}
 
 Generate the complete implementation now:"""
 
