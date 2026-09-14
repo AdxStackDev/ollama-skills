@@ -1,0 +1,1 @@
+"""Core application services for the Smart Ollama Assistant."""
