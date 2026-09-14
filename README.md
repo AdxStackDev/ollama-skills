@@ -1,250 +1,253 @@
-# Smart Ollama Assistant with Code Execution
+# Smart Ollama Assistant
 
-An intelligent assistant that analyzes your prompts, loads relevant skills, and **automatically implements complete projects** with code validation.
+An intelligent local code-generation assistant that analyzes your prompt, loads relevant skills, generates complete multi-file projects using a local Ollama model, and validates the output.
 
 ## Features
 
-- 🧠 **Intelligent Prompt Analysis**: Determines which skills are relevant to your request
-- 📚 **Dynamic Skill Loading**: Loads expertise from `.md` skill files automatically
-- 🤖 **Smart Folder Naming**: Ollama decides clean project folder names
-- 📁 **Complete Implementation**: Creates all project files automatically
-- ✅ **Code Validation**: Validates HTML, CSS, and JavaScript
-- 🌐 **Browser Preview**: Opens projects in browser automatically
-- 🚫 **Code Only**: Creates HTML, CSS, JS, Python files - NO .md files
+- 🧠 **Skill routing**: A first Ollama call determines which skills are relevant to your request
+- 📚 **Dynamic skill loading**: Loads expertise from `.md` skill files — flat files and directory-based skills with examples
+- 🤖 **Smart project naming**: Ollama generates a clean, filesystem-safe folder name per project
+- 📁 **Complete project output**: Creates all code files automatically under `output/`
+- ✅ **Code validation**: Validates HTML structure, CSS braces, and JavaScript bracket balance
+- 🌐 **Browser preview**: Opens `index.html` directly from the REPL
 
-## Quick Start
+## Prerequisites
 
-### Prerequisites
-
-1. **Ollama running** with **qwen2.5-coder:7b** model
+1. **Ollama** running locally with the **qwen2.5-coder:7b** model:
    ```bash
    ollama list
-   # If model not available:
+   # If not available:
    ollama pull qwen2.5-coder:7b
    ```
 
-2. **Python 3.8+** with **requests** library
+2. **Python 3.10+** with the **requests** library:
    ```bash
    pip install requests
    ```
 
-### Run
+## Quick Start: CLI Snap
 
 ```bash
-python smart_assistant_executor.py
+python app.py
 ```
+
+![CLI on startup](cli.png)
 
 ## How It Works
 
-1. **You describe what you want**: "Create a portfolio page for a backend developer"
-2. **Analyzes request**: Determines relevant skills to load
-3. **Generates folder name**: Ollama decides → `backend_portfolio`
-4. **Implements code**: Writes all HTML, CSS, JS files
-5. **Validates**: Checks all files for errors
-6. **Ready to use**: Opens in browser
+Each request makes three sequential Ollama calls:
+
+1. **Skill routing** — the model reads skill descriptions and returns which ones apply
+2. **Code generation** — the selected skills (including any examples) are injected into the prompt; the model returns fenced code blocks
+3. **Project naming** — the model returns a lowercase hyphenated folder name
+
+The response is then parsed for fenced code blocks, files are written to `output/<project-name>/`, and validators run on each file.
+
+## REPL Commands
+
+| Command | Action |
+|---------|--------|
+| Any prompt | Run the full generation pipeline |
+| `skills` | List all available skills and descriptions |
+| `open` | Open `index.html` of the current project in the browser |
+| `files` | List all files in the current project directory |
+| `quit` / `exit` | End the session |
 
 ## Example Session
 
 ```
-💬 You: Create a portfolio page for a fullstack developer
+💬 You: create an ATS-friendly resume for a fullstack developer
 
-🔍 Analyzing your request...
-📚 Loaded skills: frontend-design
+🔍 Analyzing request...
+🧠 Selected skills: resume-portofolio
 
-🤖 Generating implementation...
-[AI generates complete code with design principles...]
-
-============================================================
-🔨 IMPLEMENTATION PHASE
-============================================================
-
-📁 Created project directory: output/fullstack_portfolio
+🤖 Generating code...
 
 📝 Writing files...
-✅ Created: index.html
-✅ Created: styles.css
-✅ Created: scripts.js
+Created: index.html
+Created: styles.css
 
-🔍 Validating files...
-✅ HTML Validation: All checks passed
-✅ CSS Validation: Syntax valid
-✅ JavaScript Validation: No errors
+� Validating generated files...
 
-============================================================
-✅ IMPLEMENTATION COMPLETE
-============================================================
+📄 index.html
+  ✅ Validation passed
 
-📂 Project files in fullstack_portfolio:
-  📄 index.html (2145 bytes)
-  📄 styles.css (1567 bytes)
-  📄 scripts.js (234 bytes)
+📄 styles.css
+  ✅ Validation passed
 
-🌐 Project location: E:\py\ai\skills\output\fullstack_portfolio
-
-💡 Next steps:
-   1. Review the generated files
-   2. Type 'open' to view in browser
-   3. Type 'edit' to make modifications
+✅ Project created: ats_friendly_resume_fullstack
 
 💬 You: open
-
 🌐 Opened index.html in browser
 ```
 
-## Commands
-
-| Command | Action |
-|---------|--------|
-| Your request | Generates and implements project |
-| `open` | Open current project in browser |
-| `files` | List all files in current project |
-| `skills` | Show available skills |
-| `quit` / `exit` | End session |
-
 ## Available Skills
 
-### Frontend Design
-**Loaded for**: UI, landing pages, portfolios, dashboards, web design
-**Provides**: Design principles, typography, layout, color palettes, avoiding generic patterns
+### Flat skills (`skills/*.md`)
 
-### Backend API
-**Loaded for**: REST APIs, endpoints, server routes, authentication
-**Provides**: API design patterns, security, validation, error handling
+| Skill ID | Loaded for |
+|---|---|
+| `frontend` | UI, landing pages, portfolios, dashboards — distinctive visual design using HTML, CSS, Bootstrap, Tailwind, JS |
+| `backend-api` | REST APIs, endpoints, authentication, error handling, security |
+| `database-design` | SQL/NoSQL schemas, normalization, indexes, migrations |
+| `python-best-practices` | Python scripts, type hints, testing, project structure, performance |
 
-### Database Design
-**Loaded for**: Database schemas, SQL, tables, queries
-**Provides**: Schema design, normalization, indexes, SQL/NoSQL patterns
+### Directory-based skill (`skills/<name>/skill.md` + `examples/`)
 
-### Python Best Practices
-**Loaded for**: Python code, scripts, performance, testing
-**Provides**: Code style, type hints, testing patterns, optimization
+| Skill ID | Loaded for |
+|---|---|
+| `resume-portofolio` | ATS-friendly resumes, cover letters, developer portfolios, job-posting tailoring |
 
-## Smart Folder Naming
+Directory-based skills include numbered example files from `examples/` that are injected verbatim into the generation prompt, providing few-shot guidance to the model.
 
-Ollama intelligently names your project folders:
+## Adding a New Skill
 
-| Your Prompt | Generated Folder |
-|-------------|-----------------|
-| create a html page of portfolio for backend developer | `backend_portfolio` |
-| build a landing page for coffee shop | `landing_page` |
-| make a todo app with react | `react_todo_app` |
-| design dashboard for admin | `admin_dashboard` |
-| create REST API for users | `user_api` |
-| build python web scraper | `web_scraper` |
+**Flat skill** — create a single `.md` file in `skills/`:
+
+```
+skills/
+└── my-skill.md
+```
+
+```markdown
+---
+name: my-skill
+description: One-line description the router uses to decide relevance
+---
+
+# My Skill
+
+Instructions the model should follow...
+```
+
+**Directory-based skill with examples** — create a subdirectory:
+
+```
+skills/
+└── my-skill/
+    ├── skill.md        ← required, same frontmatter format
+    └── examples/
+        ├── 01-example.md
+        └── 02-example.md
+```
 
 ## Project Structure
 
 ```
 skills/
-├── smart_assistant_executor.py   # Main script
-├── output/                       # Generated projects
-│   ├── backend_portfolio/
-│   │   ├── index.html
-│   │   ├── styles.css
-│   │   └── scripts.js
-│   ├── todo_app/
-│   └── landing_page/
-├── skills/                       # Skills library
-│   ├── frontend-design.md
+├── app.py                   # Entry point — wires everything together
+├── chat.py                  # Prototype: simple multi-turn chat (no file output)
+├── plan.py                  # Prototype: skill-routing chat (no file output)
+├── assistant/
+│   ├── ollama_client.py     # HTTP transport to Ollama API
+│   ├── skill_manager.py     # Loads and looks up skills from disk
+│   ├── prompt_router.py     # Selects relevant skills per request
+│   ├── code_generator.py    # Orchestrates the full generation pipeline
+│   ├── code_parser.py       # Extracts fenced code blocks from Ollama response
+│   └── project_manager.py   # Manages output/ directory and browser preview
+├── validators/
+│   ├── html_validator.py    # Checks DOCTYPE and required tags
+│   ├── css_validator.py     # Checks non-empty and balanced braces
+│   └── javascript_validator.py  # Checks balanced brackets/parens/braces
+├── skills/                  # Skill library
+│   ├── frontend.md
 │   ├── backend-api.md
 │   ├── database-design.md
-│   └── python-best-practices.md
-└── README.md
+│   ├── python-best-practices.md
+│   └── resume-portofolio/
+│       ├── skill.md
+│       └── examples/
+└── output/                  # Generated projects (created on first run)
 ```
 
-## What Gets Created
+## Generated File Types
 
-### Web Projects
-- `index.html` - Main HTML file
-- `styles.css` - Styling
-- `scripts.js` - JavaScript functionality
+| Language block | Output file |
+|---|---|
+| ` ```html ` | `index.html` |
+| ` ```css ` | `styles.css` |
+| ` ```javascript` / ` ```js` | `scripts.js` |
+| ` ```python ` | `main.py`, `script2.py`, … |
+| ` ```sql ` | `schema.sql` |
+| ` ```json ` | `package.json` or `config.json` |
 
-### Python Projects
-- `main.py` - Main script
-- Additional `.py` files as needed
-
-### Config Files
-- `package.json` - If Node.js project
-- `requirements.txt` - If Python project
-
-### NOT Created
-- ❌ .md files (documentation)
-- ❌ README files
-- ✅ Only code files
+Blocks with unrecognised language identifiers are skipped silently.
 
 ## Configuration
 
-### Change Model
+All defaults live in the class constructors and can be changed at instantiation in `app.py`.
+
+**Change model:**
 ```python
-client = ExecutorOllamaClient(model="qwen2.5-coder:3b")
+ollama_client = OllamaClient(model="qwen2.5-coder:3b")
 ```
 
-### Change Output Directory
+**Change Ollama URL:**
 ```python
-executor = CodeExecutor(output_dir="my_projects")
+ollama_client = OllamaClient(base_url="http://your-server:11434")
 ```
 
-### Change Ollama URL
+**Change output directory:**
 ```python
-client = ExecutorOllamaClient(base_url="http://your-server:11434")
+project_manager = ProjectManager(output_dir="my_projects")
 ```
 
-## Validation Features
+**Change skills directory:**
+```python
+skill_manager = SkillManager(skills_dir="my_skills")
+```
 
-- **HTML**: DOCTYPE, structure, proper tags
-- **CSS**: Syntax, rules, selectors
-- **JavaScript**: Syntax checking (with Node.js if available)
+## Validation
+
+Validators are heuristic checks — they catch obvious structural problems but do not replace a real linter.
+
+| File | Checks |
+|---|---|
+| `.html` | `<!DOCTYPE html>` present, `<html>`, `<head>`, `<body>`, `</html>` present |
+| `.css` | Non-empty, `{` and `}` counts match |
+| `.js` | `{}`、`()`、`[]` counts all balanced |
+| `.sql`, `.py`, other | No validator — reported as info, not an error |
 
 ## Troubleshooting
 
-### "Error communicating with Ollama"
-Check Ollama is running: `ollama list`
+**"Error communicating with Ollama"**
+Confirm Ollama is running: `ollama list`
 
-### "No code blocks found in response"
-Be more specific: "Create a complete HTML portfolio page"
+**"No supported code blocks were found"**
+The model returned plain prose instead of fenced code blocks. Try a more specific prompt, e.g. *"generate a complete SQL schema for an ecommerce database"*.
 
-### Folder name unclear
-Ollama generates the name. If unsatisfied, manually rename in `output/` folder
+**Skill not selected**
+Type `skills` to see the exact skill IDs. The router matches on display names and IDs — if the model returns an unexpected string the fallback substring match should still resolve it.
 
-### Browser won't open
-Manually open `output/project_name/index.html` in your browser
-
-### Skills not loading
-Check `skills/` folder exists and contains `.md` files
+**Browser won't open**
+Open the file manually: `output/<project-name>/index.html`
 
 ## Example Prompts
 
 ```
-Create a portfolio page for a photographer
-Build a landing page for a yoga studio
-Make a todo list app with dark mode
-Design a dashboard for analytics
-Create a contact form with validation
-Build a calculator app
-Make a weather app with API integration
+Create an ATS-friendly resume for a finance manager
+Build a landing page for a coffee shop with dark mode
+Generate a complete SQL schema for an ecommerce database
+Create a REST API design document for a user management service
+Make a fullstack developer portfolio with project cards
+Build a Python CLI tool for batch file renaming
 ```
-
-## Tips
-
-1. **Be specific** - "Create a dark-themed portfolio with project cards" vs "Make a website"
-2. **Review generated code** - Always check before deploying
-3. **Use 'open' command** - Instantly preview in browser
-4. **Iterate quickly** - Generate, review, request changes
 
 ## Performance
 
-- Initial analysis: ~2-3 seconds
-- Folder naming: ~1-2 seconds  
-- Code generation: 10-30 seconds (depends on complexity)
-- File creation: <1 second
-- Total: ~15-35 seconds for complete project
+| Step | Approximate time |
+|---|---|
+| Skill routing (Ollama call 1) | 1–3 s |
+| Code generation (Ollama call 2) | 10–30 s |
+| Project naming (Ollama call 3) | 1–2 s |
+| File writing + validation | < 1 s |
+| **Total** | **~15–35 s** |
 
 ## Requirements
 
-- Python 3.8+
-- requests library (`pip install requests`)
-- Ollama with qwen2.5-coder:7b model
-- Optional: Node.js (for JavaScript validation)
+- Python 3.10+
+- `requests` (`pip install requests`)
+- Ollama with `qwen2.5-coder:7b`
 
 ## License
 
