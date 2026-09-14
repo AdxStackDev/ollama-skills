@@ -11,6 +11,7 @@ class CodeParser:
         "javascript": "scripts.js",
         "js": "scripts.js",
         "python": "main.py",
+        "sql": "schema.sql",
     }
 
     def extract_code_blocks(

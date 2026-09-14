@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from assistant.ollama_client import OllamaClient
@@ -22,35 +23,74 @@ class PromptRouter:
             self.skill_manager.get_skill_descriptions()
         )
 
+        # Build an explicit list of valid IDs to
+        # anchor the model's output.
+        valid_ids = ", ".join(
+            f"'{sid}'"
+            for sid in self.skill_manager.skills
+        )
+
         analysis_prompt = f"""You are a skill routing assistant.
-Analyze the user's request and determine which skills are relevant.
+
+Available skill IDs: {valid_ids}
 
 Available Skills:
 {available_skills}
 
 User Request: {user_prompt}
 
-Based on the user's request, which skills should be loaded?
-Respond with ONLY the skill names
-(like 'frontend-design', 'backend-api', etc.)
-separated by commas, or 'none' if no specific skills are needed.
+Which skill IDs from the list above are relevant?
+Reply with ONLY the skill IDs exactly as shown, separated by commas.
+Do not add explanations, parentheses, or any other text.
+If none apply, reply with the single word: none
 
-Your response (skill names only):"""
+Reply:"""
 
         try:
             result = self.ollama_client.generate(
                 analysis_prompt,
                 stream=False,
-            ).lower()
+            ).lower().strip()
 
-            if result == "none" or not result:
+            if not result or result == "none":
                 return []
 
-            return [
-                name.strip()
-                for name in result.split(",")
-                if name.strip()
+            # Keep only tokens that are valid skill IDs
+            # or display names — drop any extra words the
+            # model appended despite instructions.
+            valid_skill_ids = set(
+                self.skill_manager.skills.keys()
+            )
+            valid_display_names = {
+                skill["name"].lower()
+                for skill in self.skill_manager.skills.values()
+            }
+
+            candidates = [
+                token.strip()
+                for token in result.split(",")
+                if token.strip()
             ]
+
+            matched: List[str] = []
+            for candidate in candidates:
+                # Exact ID or display-name match.
+                if (
+                    candidate in valid_skill_ids
+                    or candidate in valid_display_names
+                ):
+                    matched.append(candidate)
+                    continue
+
+                # Fallback: check if any valid ID/name
+                # is a substring of the candidate
+                # (handles "resume-portfolio (blah)").
+                for vid in valid_skill_ids | valid_display_names:
+                    if vid in candidate:
+                        matched.append(vid)
+                        break
+
+            return matched
 
         except Exception as exc:
             print(
