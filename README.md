@@ -25,13 +25,17 @@ An intelligent local code-generation assistant that analyzes your prompt, loads 
    pip install requests
    ```
 
-## Quick Start: CLI Snap
+## UI Preview
+
+![UI landing page](images/ui.png)
+
+## Quick Start: CLI Preview
 
 ```bash
 python app.py
 ```
 
-![CLI on startup](cli.png)
+![CLI on startup](images/cli.png)
 
 ## How It Works
 
@@ -250,5 +254,4 @@ Build a Python CLI tool for batch file renaming
 - Ollama with `qwen2.5-coder:7b`
 
 ## License
-
-See LICENSE.txt for complete terms.
+MIT
