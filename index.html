@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Ollama Assistant - Local AI Code Generation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet"/>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <a href="#" class="logo-link">
+          <span class="logo-icon material-icons">smart_toy</span>
+          <span>Smart Ollama Assistant</span>
+        </a>
+      </div>
+      <nav class="header-middle">
+        <a href="#features" class="menu-item">Features</a>
+        <a href="#skills" class="menu-item">Skills</a>
+        <a href="#how-it-works" class="menu-item">How It Works</a>
+        <a href="https://github.com/AdxStackDev/ollama-skills" class="menu-item">GitHub</a>
+      </nav>
+      <div class="header-right">
+        <button class="cta-btn" onclick="scrollToDemo()">Try It Now</button>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="fa-hero">
+      <div class="fa-container">
+        <div class="fa-pill-badge">
+          <span class="mat-icon">bolt</span>
+          100% Local • No API Keys • Powered by Ollama
+        </div>
+
+        <h1 class="fa-hero-h1">
+          Generate Complete Code with<br />
+          <span class="fa-grad-text">Local AI Intelligence</span>
+        </h1>
+
+        <p class="fa-hero-subtext">
+          A smart CLI assistant that analyzes your request, loads relevant skills,
+          generates complete code, and validates output—all running locally on your machine
+          with Ollama.
+        </p>
+
+        <div class="fa-hero-ctas">
+          <div class="fa-hero-search-wrap">
+            <input
+              type="text"
+              class="fa-hero-input"
+              placeholder="Type your request: 'Create an ATS-friendly resume for finance manager'"
+              id="demoInput"
+            />
+            <button class="fa-hero-search-btn" onclick="runDemo()">
+              Generate
+              <span class="mat-icon">arrow_forward</span>
+            </button>
+          </div>
+
+          <div class="fa-hero-try-row">
+            <span class="fa-try-label">Try examples:</span>
+            <button class="fa-try-pill" onclick="setExample('Create a REST API for user management')">
+              REST API
+            </button>
+            <button class="fa-try-pill" onclick="setExample('Build a landing page with modern design')">
+              Landing Page
+            </button>
+            <button class="fa-try-pill" onclick="setExample('Design a database schema for e-commerce')">
+              Database
+            </button>
+          </div>
+        </div>
+
+        <div class="fa-hero-pills">
+          <div class="fa-agent-pill">
+            <span class="fa-dot" style="background: rgb(34, 197, 94)"></span>
+            Python
+          </div>
+          <div class="fa-agent-pill">
+            <span class="fa-dot" style="background: rgb(79, 127, 232)"></span>
+            HTML/CSS/JS
+          </div>
+          <div class="fa-agent-pill">
+            <span class="fa-dot" style="background: rgb(245, 158, 11)"></span>
+            SQL
+          </div>
+          <div class="fa-agent-pill">
+            <span class="fa-dot" style="background: rgb(139, 92, 246)"></span>
+            JSON
+          </div>
+        </div>
+
+        <div class="fa-hero-mockup">
+          <div class="fa-browser-chrome">
+            <div class="fa-browser-bar">
+              <div class="fa-browser-dots">
+                <div class="fa-dot-red"></div>
+                <div class="fa-dot-amber"></div>
+                <div class="fa-dot-green"></div>
+              </div>
+              <div class="fa-url-bar">localhost:3000/demo</div>
+            </div>
+            <div class="fa-browser-body" id="terminal">
+              <div class="terminal-line">
+                <span class="prompt">$</span>
+                <span class="command"> python app.py</span>
+              </div>
+              <div class="terminal-line output">
+                🚀 Smart Ollama Assistant with Code Execution
+              </div>
+              <div class="terminal-line output">
+                ═══════════════════════════════════════════════════
+              </div>
+              <div class="terminal-line">
+                <span class="prompt">💬 You:</span>
+                <span class="output"> Create an ATS-friendly resume</span>
+              </div>
+              <div class="terminal-line output">🔍 Analyzing request...</div>
+              <div class="terminal-line success">
+                🧠 Selected skills: resume-portofolio
+              </div>
+              <div class="terminal-line output">🤖 Generating code...</div>
+              <div class="terminal-line success">
+                ✅ Project created: finance-manager-ats-resume
+              </div>
+              <div class="terminal-line output">
+                📁 output/finance-manager-ats-resume/
+              </div>
+              <div class="terminal-line output">  └─ index.html</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="fa-problem-section" id="features">
+      <div class="fa-container">
+        <div class="fa-section-header">
+          <div class="fa-section-badge">
+            <span class="mat-icon">stars</span>
+            Key Features
+          </div>
+          <h2 class="fa-section-title">Built for Local Development</h2>
+          <p class="fa-section-sub">
+            Everything runs on your machine. No cloud dependencies, no API costs, complete
+            privacy and control.
+          </p>
+        </div>
+
+        <div class="fa-problem-grid">
+          <div class="fa-problem-card">
+            <div class="fa-problem-icon" style="background: rgba(79, 127, 232, 0.1); color: rgb(79, 127, 232)">
+              🔒
+            </div>
+            <h3 class="fa-problem-title">100% Local</h3>
+            <p class="fa-problem-text">
+              No external API keys required. All processing happens on your local Ollama
+              instance with complete data privacy.
+            </p>
+          </div>
+
+          <div class="fa-problem-card">
+            <div class="fa-problem-icon" style="background: rgba(34, 197, 94, 0.1); color: rgb(34, 197, 94)">
+              🎯
+            </div>
+            <h3 class="fa-problem-title">Smart Routing</h3>
+            <p class="fa-problem-text">
+              AI-powered prompt analysis automatically selects relevant skills and best
+              practices for your request.
+            </p>
+          </div>
+
+          <div class="fa-problem-card">
+            <div class="fa-problem-icon" style="background: rgba(245, 158, 11, 0.1); color: rgb(245, 158, 11)">
+              📝
+            </div>
+            <h3 class="fa-problem-title">Multi-File Output</h3>
+            <p class="fa-problem-text">
+              Generates complete projects with HTML, CSS, JS, Python, SQL, and JSON files
+              from a single prompt.
+            </p>
+          </div>
+
+          <div class="fa-problem-card">
+            <div class="fa-problem-icon" style="background: rgba(139, 92, 246, 0.1); color: rgb(139, 92, 246)">
+              ✓
+            </div>
+            <h3 class="fa-problem-title">Auto Validation</h3>
+            <p class="fa-problem-text">
+              Built-in validators check HTML structure, CSS syntax, and JavaScript balance
+              before writing files.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="fa-agents-section" id="skills">
+      <div class="fa-container">
+        <div class="fa-section-header">
+          <div class="fa-section-badge">
+            <span class="mat-icon">psychology</span>
+            Available Skills
+          </div>
+          <h2 class="fa-section-title">Domain Expertise Built-In</h2>
+          <p class="fa-section-sub">
+            Each skill contains best practices, examples, and guidelines that get injected
+            into the generation prompt.
+          </p>
+        </div>
+
+        <div class="fa-agents-grid">
+          <div class="fa-agent-card">
+            <div class="fa-agent-content">
+              <h3 class="fa-agent-title">Frontend Design</h3>
+              <p class="fa-agent-tagline">Modern, accessible web interfaces</p>
+              <p class="fa-agent-body">
+                Complete guidance on design philosophy, CSS framework selection, typography,
+                motion restraint, and accessibility compliance. Includes a two-pass design
+                process for production-ready output.
+              </p>
+              <div class="fa-feature-pills">
+                <span class="fa-fpill">Plain CSS</span>
+                <span class="fa-fpill">Tailwind</span>
+                <span class="fa-fpill">Bootstrap</span>
+                <span class="fa-fpill">Accessibility</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="fa-agent-card">
+            <div class="fa-agent-content">
+              <h3 class="fa-agent-title">Backend API</h3>
+              <p class="fa-agent-tagline">REST API design patterns</p>
+              <p class="fa-agent-body">
+                RESTful architecture principles, HTTP method usage, endpoint structuring,
+                authentication patterns, error handling, and security best practices for
+                building scalable APIs.
+              </p>
+              <div class="fa-feature-pills">
+                <span class="fa-fpill">REST</span>
+                <span class="fa-fpill">Auth</span>
+                <span class="fa-fpill">Security</span>
+                <span class="fa-fpill">Performance</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="fa-agent-card">
+            <div class="fa-agent-content">
+              <h3 class="fa-agent-title">Database Design</h3>
+              <p class="fa-agent-tagline">SQL & NoSQL schema patterns</p>
+              <p class="fa-agent-body">
+                Schema design principles, normalization strategies, indexing guidelines,
+                migration best practices, and choosing between SQL and NoSQL for your use
+                case.
+              </p>
+              <div class="fa-feature-pills">
+                <span class="fa-fpill">SQL</span>
+                <span class="fa-fpill">NoSQL</span>
+                <span class="fa-fpill">Indexing</span>
+                <span class="fa-fpill">Migrations</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="fa-agent-card">
+            <div class="fa-agent-content">
+              <h3 class="fa-agent-title">Resume & Portfolio</h3>
+              <p class="fa-agent-tagline">ATS-optimized career documents</p>
+              <p class="fa-agent-body">
+                Deep understanding of ATS parsing mechanics, formatting that works,
+                quantified bullet strategies, keyword optimization, and portfolio design.
+                Includes before/after examples.
+              </p>
+              <div class="fa-feature-pills">
+                <span class="fa-fpill">ATS-Safe</span>
+                <span class="fa-fpill">Quantified Bullets</span>
+                <span class="fa-fpill">Examples</span>
+                <span class="fa-fpill">Portfolio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="fa-hiw-section" id="how-it-works">
+      <div class="fa-container">
+        <div class="fa-section-header">
+          <div class="fa-section-badge">
+            <span class="mat-icon">insights</span>
+            How It Works
+          </div>
+          <h2 class="fa-section-title">Three-Step Pipeline</h2>
+          <p class="fa-section-sub">
+            From plain English to complete, validated code in seconds.
+          </p>
+        </div>
+
+        <div class="fa-hiw-steps">
+          <div class="fa-hiw-step">
+            <span class="fa-step-number">STEP 01</span>
+            <div class="fa-step-icon">🔍</div>
+            <h3 class="fa-step-title">Analyze & Route</h3>
+            <p class="fa-step-text">
+              AI analyzes your request and selects relevant skills from the library. Each
+              skill contains domain expertise and examples.
+            </p>
+          </div>
+
+          <div class="fa-step-arrow">
+            <div class="fa-arrow-line"></div>
+          </div>
+
+          <div class="fa-hiw-step">
+            <span class="fa-step-number">STEP 02</span>
+            <div class="fa-step-icon">🤖</div>
+            <h3 class="fa-step-title">Generate Code</h3>
+            <p class="fa-step-text">
+              Ollama generates complete, multi-file code with skills injected as context.
+              Output is parsed from markdown code blocks.
+            </p>
+          </div>
+
+          <div class="fa-step-arrow">
+            <div class="fa-arrow-line"></div>
+          </div>
+
+          <div class="fa-hiw-step">
+            <span class="fa-step-number">STEP 03</span>
+            <div class="fa-step-icon">✓</div>
+            <h3 class="fa-step-title">Validate & Write</h3>
+            <p class="fa-step-text">
+              Validators check structure and syntax. Files are written to output/ with a
+              generated project name. Ready to use.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="fa-container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <span class="logo-icon material-icons">smart_toy</span>
+              Smart Ollama Assistant
+            </div>
+            <p class="footer-desc">
+              A local, agentic code-generation assistant built from scratch in Python.
+              Generate complete projects with AI-powered skill routing and automatic
+              validation.
+            </p>
+          </div>
+
+          <div class="footer-col">
+            <h4>Product</h4>
+            <ul class="footer-links">
+              <li><a href="#features">Features</a></li>
+              <li><a href="#skills">Skills</a></li>
+              <li><a href="#how-it-works">How It Works</a></li>
+              <li><a href="https://github.com/yourusername/ollama-skills">GitHub</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Documentation</h4>
+            <ul class="footer-links">
+              <li><a href="#">Getting Started</a></li>
+              <li><a href="#">Installation</a></li>
+              <li><a href="#">Usage Guide</a></li>
+              <li><a href="#">API Reference</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Community</h4>
+            <ul class="footer-links">
+              <li><a href="#">Discord</a></li>
+              <li><a href="#">Issues</a></li>
+              <li><a href="#">Contributing</a></li>
+              <li><a href="#">Changelog</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          © 2026 Smart Ollama Assistant. Built by AdxStackDev
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      function scrollToDemo() {
+        document.querySelector(".fa-hero-input").focus();
+      }
+
+      function setExample(text) {
+        document.getElementById("demoInput").value = text;
+      }
+
+      function runDemo() {
+        const input = document.getElementById("demoInput").value;
+        if (!input) return;
+
+        const terminal = document.getElementById("terminal");
+        terminal.innerHTML = `
+          <div class="terminal-line">
+            <span class="prompt">$</span>
+            <span class="command"> python app.py</span>
+          </div>
+          <div class="terminal-line output">
+            🚀 Smart Ollama Assistant with Code Execution
+          </div>
+          <div class="terminal-line output">
+            ═══════════════════════════════════════════════════
+          </div>
+          <div class="terminal-line">
+            <span class="prompt">💬 You:</span>
+            <span class="output"> ${input}</span>
+          </div>
+          <div class="terminal-line output">🔍 Analyzing request...</div>
+        `;
+
+        setTimeout(() => {
+          terminal.innerHTML += `<div class="terminal-line success">🧠 Selected skills: frontend, backend-api</div>`;
+        }, 800);
+
+        setTimeout(() => {
+          terminal.innerHTML += `<div class="terminal-line output">🤖 Generating code...</div>`;
+        }, 1600);
+
+        setTimeout(() => {
+          terminal.innerHTML += `<div class="terminal-line success">✅ Project created: ${generateProjectName(
+            input
+          )}</div>`;
+          terminal.innerHTML += `<div class="terminal-line output">📁 output/${generateProjectName(
+            input
+          )}/</div>`;
+          terminal.innerHTML += `<div class="terminal-line output">  ├─ index.html</div>`;
+          terminal.innerHTML += `<div class="terminal-line output">  ├─ styles.css</div>`;
+          terminal.innerHTML += `<div class="terminal-line output">  └─ scripts.js</div>`;
+        }, 2800);
+      }
+
+      function generateProjectName(text) {
+        return text
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .substring(0, 50);
+      }
+
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
